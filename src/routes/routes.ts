@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-
+import * as userController from '@/controllers/userController';
 const route = Router();
 
 route.get('/test', (req: Request, res: Response) => {
@@ -9,5 +9,7 @@ route.get('/test', (req: Request, res: Response) => {
     data: null,
   });
 });
+
+route.post('/create/user', userController.createUser);
 
 export default route;
