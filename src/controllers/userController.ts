@@ -129,3 +129,57 @@ export const createUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    let { email, password }: { email: string; password: string } = req.body;
+
+    if (!email || !password) {
+      return res.status(404).json({
+        error: true,
+        message: 'Preencha todos os campos.',
+        data: null,
+      });
+    }
+
+    const isEmail = validator.isEmail(email);
+    if (!isEmail) {
+      return res.status(201).json({
+        error: true,
+        message: 'Digite um email valido.',
+        data: null,
+      });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário invalido',
+        data: null,
+      });
+    }
+
+    const isvalidPassword = bcrypt.compareSync(password, user.password);
+    if (!isvalidPassword) {
+      return res.status(201).json({
+        error: true,
+        message: 'Email e/ou senha inválidos.',
+        data: null,
+      });
+    }
+
+    const token = await JwtSign({ id: user?.id, email });
+    return res.status(201).json({
+      error: false,
+      message: 'Usuário logado com sucesso.',
+      data: token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};
