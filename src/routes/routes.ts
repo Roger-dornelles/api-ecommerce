@@ -11,5 +11,6 @@ route.get('/test', (req: Request, res: Response) => {
 });
 
 route.post('/create/user', userController.createUser);
+route.post('/login', userController.login)
 
 export default route;
