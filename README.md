@@ -17,5 +17,6 @@
 - Typescript
 - Jest ( SuperTest )
 - Jwt
+- Mysql
 - Eslint
 - Prettier
