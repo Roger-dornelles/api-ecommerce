@@ -1,5 +1,7 @@
+import { privateRoute } from './../auth/auth';
 import { Router, Request, Response } from 'express';
 import * as userController from '@/controllers/userController';
+import * as statesController from '@/controllers/statesController';
 const route = Router();
 
 route.get('/test', (req: Request, res: Response) => {
@@ -10,7 +12,10 @@ route.get('/test', (req: Request, res: Response) => {
   });
 });
 
+// list states
+route.post('/add/states', privateRoute, statesController.addState);
+
 route.post('/create/user', userController.createUser);
-route.post('/login', userController.login)
+route.post('/login', userController.login);
 
 export default route;
