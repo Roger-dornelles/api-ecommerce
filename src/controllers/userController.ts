@@ -34,7 +34,7 @@ export const createUser = async (req: Request, res: Response) => {
         data: null,
       });
     } else {
-      let isNameValid: boolean = validator.isAlpha(name, 'pt-BR');
+      let isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
 
       if (!isNameValid) {
         return res.status(201).json({
