@@ -300,3 +300,34 @@ export const updateUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (id) {
+      const user = await User.findByPk(id);
+
+      if (!user) {
+        return res.status(404).json({
+          error: true,
+          massage: 'Usuário inexistente',
+          data: null,
+        });
+      }
+
+      await user.destroy();
+
+      return res.status(200).json({
+        error: false,
+        message: 'Usuário excluído com sucesso',
+        data: null,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro,tente mais tarde.',
+    });
+  }
+};
