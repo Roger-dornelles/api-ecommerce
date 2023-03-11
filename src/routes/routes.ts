@@ -17,6 +17,7 @@ route.post('/add/states', privateRoute, statesController.addState);
 
 route.post('/create/user', userController.createUser);
 route.post('/login', userController.login);
-route.put('/user/:id',privateRoute,userController.updateUser)
+route.put('/user/:id', privateRoute, userController.updateUser);
+route.delete('/user/:id', privateRoute, userController.deleteUser);
 
 export default route;
