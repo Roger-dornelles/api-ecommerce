@@ -7,11 +7,7 @@ export interface TokenInterface {
   id: number;
 }
 
-export const privateRoute = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const privateRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
