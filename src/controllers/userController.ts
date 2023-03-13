@@ -331,3 +331,46 @@ export const deleteUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const userInfo = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário não encontrado.',
+        data: null,
+      });
+    }
+
+    if (req.user.id === Number(id)) {
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({
+          error: true,
+          message: 'Usuário inexistente',
+          data: null,
+        });
+      }
+
+      return res.status(201).json({
+        error: false,
+        message: null,
+        data: user,
+      });
+    } else {
+      return res.status(401).json({
+        error: true,
+        message: 'Usuário sem autorização.',
+        data: null,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};
