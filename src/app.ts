@@ -25,6 +25,7 @@ const errorHandler = ({ err, req, res, next }: any) => {
 const server = express();
 server.use(cors());
 server.use(express.static(path.join(__dirname, '../public')));
+server.use('/public/images', express.static('./public/images'));
 server.use(express.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 
