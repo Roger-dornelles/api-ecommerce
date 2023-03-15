@@ -2,6 +2,9 @@ import { privateRoute } from './../auth/auth';
 import { Router, Request, Response } from 'express';
 import * as userController from '@/controllers/userController';
 import * as statesController from '@/controllers/statesController';
+import * as productController from '@/controllers/productController';
+import { uploadImages } from '@/middlewares/uploadImages';
+
 const route = Router();
 
 route.get('/test', (req: Request, res: Response) => {
@@ -21,4 +24,5 @@ route.put('/user/:id', privateRoute, userController.updateUser);
 route.delete('/user/:id', privateRoute, userController.deleteUser);
 route.get('/user/info/:id', privateRoute, userController.userInfo);
 
+route.post('/user/new/product/:id', privateRoute, uploadImages.array('photos', 10), productController.newProduct);
 export default route;
