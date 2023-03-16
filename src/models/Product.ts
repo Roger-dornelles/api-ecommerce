@@ -2,7 +2,6 @@ import { sequelize } from '@/instances/mysql';
 import { Model, DataTypes } from 'sequelize';
 
 export interface ProductInstance extends Model {
-  [x: string]: any;
   id: number;
   userID: number;
   name: string;
@@ -10,7 +9,8 @@ export interface ProductInstance extends Model {
   photosID: number;
   state: string;
   isInstallments: boolean;
-  value: number;
+  value: string;
+  quantity: number;
 }
 
 const Product = sequelize.define<ProductInstance>(
@@ -38,7 +38,7 @@ const Product = sequelize.define<ProductInstance>(
       allowNull: false,
     },
     value: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     quantity: {
