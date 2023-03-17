@@ -4,6 +4,7 @@ import { ProductType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
+import { json } from 'body-parser';
 
 const booleans = ['false', 'true'];
 
@@ -270,6 +271,49 @@ export const deleteOneProduct = async (req: Request, res: Response) => {
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde',
+      data: null,
+    });
+  }
+};
+
+export const viewOneProduct = async (req: Request, res: Response) => {
+  try {
+    let { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Produto não encontrado',
+        data: null,
+      });
+    }
+
+    const product = await Product.findByPk(id);
+
+    if (!product) {
+      return res.status(404).json({
+        error: true,
+        message: 'Produto não encontrado.',
+        data: null,
+      });
+    }
+
+    const images = [];
+
+    for (let i in Object(product).photosID) {
+      const image = await Images.findByPk(Object(product).photosID[i]);
+      images.push({ id: image?.id, link: image?.link.replace('\\', '/').replace('\\', '/') });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: null,
+      data: { product: product, images: images },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
       data: null,
     });
   }

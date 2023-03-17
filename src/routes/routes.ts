@@ -27,5 +27,6 @@ route.get('/user/info/:id', privateRoute, userController.userInfo);
 route.post('/user/new/product/:id', privateRoute, uploadImages.array('photos', 10), productController.newProduct);
 route.put('/product/update/:id', privateRoute, productController.updateProductInformation);
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
+route.get('/product/:id',privateRoute, productController.viewOneProduct)
 
 export default route;
