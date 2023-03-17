@@ -3,7 +3,7 @@ import Images from '@/models/Images';
 import { ProductType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
-import Product from '@/models/Product';
+import Product, { ProductInstance } from '@/models/Product';
 
 const booleans = ['false', 'true'];
 
@@ -80,7 +80,7 @@ export const newProduct = async (req: Request, res: Response) => {
             data: null,
           });
         }
-        value = value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        value = Object(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       }
       let photo = [];
       if (photos.length >= 1) {
@@ -132,7 +132,7 @@ export const updateProductInformation = async (req: Request, res: Response) => {
       });
     }
 
-    let product = await Product.findByPk(id);
+    let product: ProductInstance | null = await Product.findByPk(id);
 
     if (!product) {
       return res.status(404).json({
@@ -187,9 +187,9 @@ export const updateProductInformation = async (req: Request, res: Response) => {
 
       let existentR$ = value.includes('R$ ');
       if (!existentR$) {
-        product.value = 'R$ ' + value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        product.value = 'R$ ' + Object(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       } else {
-        product.value = value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        product.value = Object(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       }
     }
 
@@ -225,6 +225,51 @@ export const updateProductInformation = async (req: Request, res: Response) => {
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro,tente mais tarde.',
+      data: null,
+    });
+  }
+};
+
+export const deleteOneProduct = async (req: Request, res: Response) => {
+  try {
+    let { id } = req.params;
+
+    if (!id) {
+      return res.status(204).json({
+        error: true,
+        message: 'Produto não encontrado',
+        data: null,
+      });
+    }
+
+    let product: ProductInstance | null = await Product.findByPk(id);
+
+    if (!product) {
+      return res.status(404).json({
+        error: true,
+        message: 'Produto não encontrado',
+        data: null,
+      });
+    }
+
+    for (let i in Object(product).photosID) {
+      let photo = await Images.findByPk(Object(product).photosID[i]);
+      if (photo) {
+        await photo?.destroy();
+      }
+    }
+
+    await product.destroy();
+
+    return res.status(200).json({
+      error: false,
+      message: 'Produto excluído com sucesso',
+      data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde',
       data: null,
     });
   }
