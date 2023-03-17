@@ -3,6 +3,7 @@ import { Router, Request, Response } from 'express';
 import * as userController from '@/controllers/userController';
 import * as statesController from '@/controllers/statesController';
 import * as productController from '@/controllers/productController';
+import * as imageController from '@/controllers/imageController';
 import { uploadImages } from '@/middlewares/uploadImages';
 
 const route = Router();
@@ -18,6 +19,9 @@ route.get('/test', (req: Request, res: Response) => {
 // list states
 route.post('/add/states', privateRoute, statesController.addState);
 
+// remove one image
+route.delete('/product/image/:imageID/:userID', privateRoute, imageController.deleteOneImage);
+
 route.post('/create/user', userController.createUser);
 route.post('/login', userController.login);
 route.put('/user/:id', privateRoute, userController.updateUser);
@@ -27,6 +31,6 @@ route.get('/user/info/:id', privateRoute, userController.userInfo);
 route.post('/user/new/product/:id', privateRoute, uploadImages.array('photos', 10), productController.newProduct);
 route.put('/product/update/:id', privateRoute, productController.updateProductInformation);
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
-route.get('/product/:id',privateRoute, productController.viewOneProduct)
+route.get('/product/:id', privateRoute, productController.viewOneProduct);
 
 export default route;
