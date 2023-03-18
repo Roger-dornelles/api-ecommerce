@@ -42,6 +42,14 @@ export const newProduct = async (req: Request, res: Response) => {
         });
       }
 
+      if (photos.length > 10) {
+        return res.status(401).json({
+          error: true,
+          message: 'Limite de imagens excedido, enviar somente 10 imagens',
+          data: null,
+        });
+      }
+
       if (name) {
         let nameSplitted = name.substring(0, 1).toUpperCase();
         name = nameSplitted + name.substring(1, name.length).toLocaleLowerCase();
@@ -89,7 +97,7 @@ export const newProduct = async (req: Request, res: Response) => {
           photo.push(
             await Images.create({
               userID: id,
-              link: `${process.env.URL}/${photos[i].path as string}`,
+              link: `${process.env.URL}/${photos[i].path.replace('public\\', '') as string}`,
             })
           );
         }
