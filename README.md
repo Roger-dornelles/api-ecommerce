@@ -21,11 +21,11 @@
 - Eslint
 - Prettier
 
-# Instalação
+## :wrench: Instalação
 
 - No termina ( prompt de comando ) de sua preferencia fazer o clone do projeto com o comando :point_down:
 ```
-git clone 
+git clone https://github.com/Roger-dornelles/api-ecommerce
 ```
 
 - Após fazer o clone do projeto navegar até a pasta do projeto, dentro da pasta do projeto fazer a isntalção das dependencias :point_down:
