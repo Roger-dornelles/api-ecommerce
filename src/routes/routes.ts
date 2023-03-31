@@ -16,8 +16,11 @@ route.get('/test', (req: Request, res: Response) => {
   });
 });
 
-// list states
+// add states
 route.post('/add/states', privateRoute, statesController.addState);
+
+// get all states
+route.get('/states/all', statesController.getAllStates);
 
 // remove one image
 route.delete('/product/image/:imageID/:userID', privateRoute, imageController.deleteOneImage);
