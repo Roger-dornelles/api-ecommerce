@@ -49,3 +49,28 @@ export const addState = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAllStates = async (req: Request, res: Response) => {
+  try {
+    let statesAll = await States.findAll();
+    if (!statesAll) {
+      return res.status(404).json({
+        error: true,
+        message: 'Não há estados cadastrado.',
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: null,
+      data: statesAll,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};
