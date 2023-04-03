@@ -79,6 +79,7 @@ export const createUser = async (req: Request, res: Response) => {
         return res.status(201).json({
           error: true,
           message: 'Numero de celular invalido.',
+          data: null,
         });
       }
     }
@@ -107,7 +108,7 @@ export const createUser = async (req: Request, res: Response) => {
     const cpfHash = await bcrypt.hashSync(cpf.toString(), 10);
 
     const firstCaracterUpperCase = name.substring(1, 0)[0].toUpperCase();
-    const nameUppercase = firstCaracterUpperCase + name.substring(1, name.length);
+    const nameUppercase = firstCaracterUpperCase + name.substring(1, name.length).toLowerCase();
 
     let userCreated = await User.create({
       name: nameUppercase,
