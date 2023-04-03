@@ -326,3 +326,29 @@ export const viewOneProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const displayAllProducts = async (req: Request, res: Response) => {
+  try {
+    const productAll = await Product.findAll();
+
+    if (!productAll) {
+      return res.status(404).json({
+        error: true,
+        message: 'Não há produto cadastrado.',
+        data: null,
+      });
+    }
+
+    return res.status(201).json({
+      erro: false,
+      message: null,
+      data: productAll,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};

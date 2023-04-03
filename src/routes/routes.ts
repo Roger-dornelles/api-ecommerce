@@ -35,5 +35,6 @@ route.post('/user/new/product/:id', privateRoute, uploadImages.array('photos', 1
 route.put('/product/update/:id', privateRoute, productController.updateProductInformation);
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
 route.get('/product/:id', privateRoute, productController.viewOneProduct);
+route.get('/products/all', productController.displayAllProducts);
 
 export default route;
