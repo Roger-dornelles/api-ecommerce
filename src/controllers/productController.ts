@@ -80,8 +80,8 @@ export const newProduct = async (req: Request, res: Response) => {
       }
 
       if (value) {
-        let regex = /\d{1,3}(?:\.\d{3})+,\d{2}$/gm;
-        let isValid = regex.test(value);
+        let regex = /^-?\d+$/;
+        let isValid = regex.test(value.replace('.', '').replace(',', ''));
         if (!isValid) {
           return res.status(201).json({
             error: true,
@@ -89,7 +89,10 @@ export const newProduct = async (req: Request, res: Response) => {
             data: null,
           });
         }
-        value = Object(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        // Object(value.replace('.', '').replace(',', '')).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+          Object(value.replace('.', '').replace(',', ''))
+        );
       }
       let photo = [];
       if (photos.length >= 1) {
