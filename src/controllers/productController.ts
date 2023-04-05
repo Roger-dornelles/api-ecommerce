@@ -4,7 +4,7 @@ import { ProductType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
-import { json } from 'body-parser';
+
 
 const booleans = ['false', 'true'];
 
@@ -110,7 +110,7 @@ export const newProduct = async (req: Request, res: Response) => {
         userID: id,
         name,
         description,
-        photosID: photo.map((i: { id: number }) => i.id),
+        photosID: photo.map((i) => i),
         value: value,
         quantity,
         isInstallments,
