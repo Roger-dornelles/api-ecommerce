@@ -84,12 +84,24 @@ export const createUser = async (req: Request, res: Response) => {
       }
     }
 
-    if (password.length < 8) {
+    if (password.length < 9) {
       return res.status(201).json({
         error: true,
-        message: 'Senha precisa ser de 8 caracteres ou mais.',
+        message: 'Senha precisa ser de 9 caracteres ou mais.',
         data: null,
       });
+    }
+
+    if (password && password.length >= 9) {
+      const regex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{9,}$/;
+      const isPasswordValid = regex.test(password);
+      if (!isPasswordValid) {
+        return res.status(201).json({
+          error: true,
+          message: 'Senha deve ser maior de 9 caracteres, deve conter letra maiúscula, minúscula e carácter especial',
+          data: null,
+        });
+      }
     }
 
     if (state) {
