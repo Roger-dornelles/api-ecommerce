@@ -229,7 +229,7 @@ export const updateUser = async (req: Request, res: Response) => {
       user.name = firstCaracterUpperCase + name.substring(1, name.length);
     }
 
-    if (password.length < 9) {
+    if (password && password.length < 9) {
       return res.status(201).json({
         error: true,
         message: 'Senha precisa ser de 9 caracteres ou mais.',
@@ -307,6 +307,7 @@ export const updateUser = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
