@@ -226,21 +226,12 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     if (password && password.length >= 8) {
-      const passwordSaveDB: boolean = bcrypt.compareSync(password, user.password);
-      if (passwordSaveDB) {
-        return res.status(201).json({
-          error: true,
-          message: 'Senha ja cadastrada',
-          data: null,
-        });
-      }
-
       user.password = bcrypt.hashSync(password, 10);
     }
 
     if (email) {
       const isEmailValid: boolean = validator.isEmail(email);
-      if (isEmailValid) {
+      if (!isEmailValid) {
         return res.status(201).json({
           error: true,
           message: 'Digite um email valido',
