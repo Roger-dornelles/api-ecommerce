@@ -6,7 +6,7 @@ export interface ProductInstance extends Model {
   userID: number;
   name: string;
   description: string;
-  photosID: number;
+  photosID: string[];
   state: string;
   isInstallments: boolean;
   value: string;
