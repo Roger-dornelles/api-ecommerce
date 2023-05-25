@@ -48,6 +48,7 @@ export const deleteOneImage = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',

@@ -4,7 +4,6 @@ import { ProductType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
-import { json } from 'body-parser';
 
 const booleans = ['false', 'true'];
 
@@ -80,8 +79,8 @@ export const newProduct = async (req: Request, res: Response) => {
       }
 
       if (value) {
-        let regex = /\d{1,3}(?:\.\d{3})+,\d{2}$/gm;
-        let isValid = regex.test(value);
+        let regex = /^-?\d+$/;
+        let isValid = regex.test(value.replace('.', '').replace(',', ''));
         if (!isValid) {
           return res.status(201).json({
             error: true,
@@ -89,7 +88,10 @@ export const newProduct = async (req: Request, res: Response) => {
             data: null,
           });
         }
-        value = Object(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        // Object(value.replace('.', '').replace(',', '')).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+          Object(value.replace('.', '').replace(',', ''))
+        );
       }
       let photo = [];
       if (photos.length >= 1) {
@@ -97,7 +99,7 @@ export const newProduct = async (req: Request, res: Response) => {
           photo.push(
             await Images.create({
               userID: id,
-              link: `${process.env.URL}/${photos[i].path.replace('public\\', '') as string}`,
+              link: `${process.env.URL}/${photos[i].path.replace('public\\', '').replace('\\', '/') as string}`,
             })
           );
         }
@@ -107,7 +109,7 @@ export const newProduct = async (req: Request, res: Response) => {
         userID: id,
         name,
         description,
-        photosID: photo.map((i: { id: number }) => i.id),
+        photosID: photo.map((i) => i),
         value: value,
         quantity,
         isInstallments,
@@ -261,8 +263,8 @@ export const deleteOneProduct = async (req: Request, res: Response) => {
       });
     }
 
-    for (let i in Object(product).photosID) {
-      let photo = await Images.findByPk(Object(product).photosID[i]);
+    for (let i in product.photosID) {
+      let photo = await Images.findByPk(Object(product).photosID[i].id);
       if (photo) {
         await photo?.destroy();
       }
@@ -307,10 +309,11 @@ export const viewOneProduct = async (req: Request, res: Response) => {
     }
 
     const images = [];
-
-    for (let i in Object(product).photosID) {
-      const image = await Images.findByPk(Object(product).photosID[i]);
-      images.push({ id: image?.id, link: image?.link.replace('\\', '/').replace('\\', '/') });
+    if (product.photosID) {
+      for (let i = 0; i < product.photosID.length; i++) {
+        const image = await Images.findByPk(Object(product).photosID[i].id);
+        images.push({ id: image?.id, link: image?.link.replace('\\', '/').replace('\\', '/') });
+      }
     }
 
     return res.status(200).json({
@@ -319,6 +322,7 @@ export const viewOneProduct = async (req: Request, res: Response) => {
       data: { product: product, images: images },
     });
   } catch (error) {
+    console.log('error ======== ', error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
