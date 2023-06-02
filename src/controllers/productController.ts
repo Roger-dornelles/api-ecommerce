@@ -356,3 +356,20 @@ export const displayAllProducts = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const installments = async (req: Request, res: Response) => {
+  const { valueTotal } = req.body;
+  let value = valueTotal.replace('R$', '').replace(',', '').replace('.', '');
+  let numberOfInstallments = [];
+  for (let i = 1; i <= 12; i++) {
+    numberOfInstallments.push({
+      parcel: i,
+      value: (value.substring(0, value.length - 2) / i)
+        .toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+        .replace('R$', '')
+        .trim(),
+    });
+  }
+
+  res.status(201).json(numberOfInstallments);
+};
