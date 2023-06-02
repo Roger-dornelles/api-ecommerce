@@ -358,18 +358,30 @@ export const displayAllProducts = async (req: Request, res: Response) => {
 };
 
 export const installments = async (req: Request, res: Response) => {
-  const { valueTotal } = req.body;
-  let value = valueTotal.replace('R$', '').replace(',', '').replace('.', '');
-  let numberOfInstallments = [];
-  for (let i = 1; i <= 12; i++) {
-    numberOfInstallments.push({
-      parcel: i,
-      value: (value.substring(0, value.length - 2) / i)
-        .toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
-        .replace('R$', '')
-        .trim(),
+  try {
+    const { valueTotal } = req.body;
+    let value = valueTotal.replace('R$', '').replace(',', '').replace('.', '');
+    let numberOfInstallments = [];
+    for (let i = 1; i <= 12; i++) {
+      numberOfInstallments.push({
+        parcel: i,
+        value: (value.substring(0, value.length - 2) / i)
+          .toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+          .replace('R$', '')
+          .trim(),
+      });
+    }
+
+    return res.status(201).json({
+      error: false,
+      message: null,
+      data: numberOfInstallments,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde',
+      data: null,
     });
   }
-
-  res.status(201).json(numberOfInstallments);
 };
