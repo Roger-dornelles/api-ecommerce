@@ -465,7 +465,7 @@ export const purchases = async (req: Request, res: Response) => {
       data: purchase,
     });
   } catch (error) {
-    console.log('ERROR => ', error);
+   
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
