@@ -37,6 +37,8 @@ route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
 route.get('/product/:id', productController.viewOneProduct);
 route.get('/products/all', productController.displayAllProducts);
 
+route.post('/product/purchase/:id', privateRoute, productController.purchases);
+
 route.post('/installment', privateRoute, productController.installments);
 
 export default route;
