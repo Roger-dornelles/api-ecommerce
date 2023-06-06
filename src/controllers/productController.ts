@@ -4,6 +4,7 @@ import { ProductType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
+import UserPurchases, { UserPurchasesInstance } from '@/models/UserPurchases';
 
 const booleans = ['false', 'true'];
 
@@ -381,6 +382,93 @@ export const installments = async (req: Request, res: Response) => {
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde',
+      data: null,
+    });
+  }
+};
+
+export const purchases = async (req: Request, res: Response) => {
+  try {
+    const { userID, name, numberParcelOfValue, total, numberOfCard, quantity, photosID }: UserPurchasesInstance = req.body;
+    const { id } = req.params;
+
+    if (!userID || !name || !numberParcelOfValue || !total || !numberOfCard || !quantity || !photosID) {
+      return res.status(400).json({
+        error: true,
+        message: 'Dados incompletos',
+        data: null,
+      });
+    }
+
+    if (name) {
+      let isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
+
+      if (!isNameValid || name.length < 2) {
+        return res.status(400).json({
+          error: true,
+          message: 'Nome invalido',
+        });
+      }
+    }
+
+    if (userID) {
+      const isValidUserID = validator.isNumeric(userID.toString());
+
+      if (!isValidUserID) {
+        return res.status(400).json({
+          error: true,
+          message: 'Usuário invalido.',
+          data: null,
+        });
+      }
+    }
+
+    if (quantity) {
+      const isValidQuantity = validator.isNumeric(quantity.toString());
+
+      if (!isValidQuantity) {
+        return res.status(400).json({
+          error: true,
+          message: 'Quantidade de produto invalida.',
+          data: null,
+        });
+      }
+    }
+
+    if (numberOfCard) {
+      const isValidCard = validator.isCreditCard(numberOfCard);
+      if (!isValidCard) {
+        return res.status(400).json({
+          error: true,
+          message: 'Cartão invalido',
+          data: null,
+        });
+      }
+    }
+
+    let lastNumbersOfCard = numberOfCard.slice(-4, numberOfCard.length).trim();
+    lastNumbersOfCard = `*** ${lastNumbersOfCard}`;
+
+    let purchase = await UserPurchases.create({
+      userID: id,
+      name,
+      numberParcelOfValue,
+      total,
+      numberOfCard,
+      quantity,
+      photosID,
+      lastNumbersOfCard,
+    });
+    return res.status(201).json({
+      error: false,
+      message: null,
+      data: purchase,
+    });
+  } catch (error) {
+    console.log('ERROR => ', error);
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
       data: null,
     });
   }
