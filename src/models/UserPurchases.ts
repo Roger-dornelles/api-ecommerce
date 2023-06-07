@@ -11,6 +11,7 @@ export interface UserPurchasesInstance extends Model {
   total: string;
   numberOfCard: string;
   lastNumbersOfCard: string;
+  securityCode: number;
 }
 
 const UserPurchases = sequelize.define<UserPurchasesInstance>(
@@ -51,6 +52,10 @@ const UserPurchases = sequelize.define<UserPurchasesInstance>(
     },
     lastNumbersOfCard: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    securityCode: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },

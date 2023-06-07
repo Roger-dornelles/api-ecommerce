@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import Images from '@/models/Images';
-import { ProductType } from '@/types/product';
+import { ProductType, UserPurchaseType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
-import UserPurchases, { UserPurchasesInstance } from '@/models/UserPurchases';
+import UserPurchases from '@/models/UserPurchases';
 
 const booleans = ['false', 'true'];
 
@@ -389,10 +389,30 @@ export const installments = async (req: Request, res: Response) => {
 
 export const purchases = async (req: Request, res: Response) => {
   try {
-    const { userID, name, numberParcelOfValue, total, numberOfCard, quantity, photosID }: UserPurchasesInstance = req.body;
+    const {
+      userID,
+      name,
+      numberParcelOfValue,
+      total,
+      numberOfCard,
+      quantity,
+      photosID,
+      securityCode,
+      cardName,
+    }: UserPurchaseType = req.body;
     const { id } = req.params;
 
-    if (!userID || !name || !numberParcelOfValue || !total || !numberOfCard || !quantity || !photosID) {
+    if (
+      !userID ||
+      !name ||
+      !numberParcelOfValue ||
+      !total ||
+      !numberOfCard ||
+      !quantity ||
+      !photosID ||
+      !securityCode ||
+      !cardName
+    ) {
       return res.status(400).json({
         error: true,
         message: 'Dados incompletos',
@@ -446,6 +466,45 @@ export const purchases = async (req: Request, res: Response) => {
       }
     }
 
+    if (securityCode) {
+      const isValidSecurityCode = validator.isNumeric(securityCode.toString());
+
+      if (!isValidSecurityCode) {
+        return res.status(400).json({
+          error: true,
+          message: 'Código de segurança invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (cardName.toLocaleLowerCase() === 'american express') {
+      console.log('entrou AMERICAN ');
+
+      const securityCodeLength = validator.isLength(securityCode.toString(), { min: 4, max: 4 });
+
+      if (!securityCodeLength) {
+        return res.status(400).json({
+          error: true,
+          message: 'Código segurança invalido.',
+          data: null,
+        });
+      }
+    }
+
+    const typeOfCardAccepted = 'elo' || 'master card' || 'visa';
+    if (cardName.toLocaleLowerCase() === typeOfCardAccepted) {
+      const integerNumberLength = validator.isLength(securityCode.toString(), { min: 3, max: 3 });
+
+      if (!integerNumberLength) {
+        return res.status(400).json({
+          error: true,
+          message: 'Código segurança invalido.',
+          data: null,
+        });
+      }
+    }
+
     let lastNumbersOfCard = numberOfCard.slice(-4, numberOfCard.length).trim();
     lastNumbersOfCard = `*** ${lastNumbersOfCard}`;
 
@@ -459,13 +518,21 @@ export const purchases = async (req: Request, res: Response) => {
       photosID,
       lastNumbersOfCard,
     });
+
+    if (!purchase) {
+      return res.status(500).json({
+        error: true,
+        message: 'Ocorreu um erro com o pagamento',
+        data: null,
+      });
+    }
+
     return res.status(201).json({
       error: false,
-      message: null,
-      data: purchase,
+      message: 'Pagamento efetuado com sucesso',
+      data: null,
     });
   } catch (error) {
-   
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
