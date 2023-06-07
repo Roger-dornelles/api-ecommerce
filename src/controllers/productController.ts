@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Images from '@/models/Images';
-import { ProductType } from '@/types/product';
+import { ProductType, UserPurchaseType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
@@ -479,8 +479,6 @@ export const purchases = async (req: Request, res: Response) => {
     }
 
     if (cardName.toLocaleLowerCase() === 'american express') {
-      console.log('entrou AMERICAN ');
-
       const securityCodeLength = validator.isLength(securityCode.toString(), { min: 4, max: 4 });
 
       if (!securityCodeLength) {
@@ -516,6 +514,7 @@ export const purchases = async (req: Request, res: Response) => {
       numberOfCard,
       quantity,
       photosID,
+
       lastNumbersOfCard,
     });
 
