@@ -5,3 +5,14 @@ export type ProductType = {
   quantity: number;
   isInstallments: string;
 };
+export interface UserPurchaseType {
+  userID: number;
+  name: string;
+  numberParcelOfValue: string;
+  total: string;
+  numberOfCard: string;
+  quantity: string;
+  photosID: string;
+  securityCode: string;
+  cardName: string;
+}
