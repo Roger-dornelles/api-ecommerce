@@ -400,7 +400,6 @@ export const purchases = async (req: Request, res: Response) => {
       securityCode,
       cardName,
     }: UserPurchaseType = req.body;
-    const { id } = req.params;
 
     if (
       !userID ||
@@ -507,7 +506,7 @@ export const purchases = async (req: Request, res: Response) => {
     lastNumbersOfCard = `*** ${lastNumbersOfCard}`;
 
     let purchase = await UserPurchases.create({
-      userID: id,
+      userID,
       name,
       numberParcelOfValue,
       total,
@@ -532,6 +531,7 @@ export const purchases = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (error) {
+    console.log('ERROR ===>> ', error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
