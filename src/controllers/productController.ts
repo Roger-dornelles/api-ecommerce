@@ -4,7 +4,9 @@ import { ProductType, UserPurchaseType } from '@/types/product';
 import validator from 'validator';
 import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
-import UserPurchases, { UserPurchasesInstance } from '@/models/UserPurchases';
+import UserPurchases from '@/models/UserPurchases';
+import bcrypt from 'bcryptjs';
+import { locales } from 'validator/lib/isIBAN';
 
 const booleans = ['false', 'true'];
 
@@ -391,43 +393,42 @@ export const purchases = async (req: Request, res: Response) => {
   try {
     const {
       userID,
-      name,
       numberParcelOfValue,
       total,
       numberOfCard,
-      quantity,
-      photosID,
       securityCode,
       cardName,
+      userProductDataOfPurchase,
+      deliveryAddress,
+      name,
+      phone,
+      address,
+      complement,
+      dueDate,
+      numberAddress,
     }: UserPurchaseType = req.body;
 
     if (
       !userID ||
-      !name ||
       !numberParcelOfValue ||
       !total ||
       !numberOfCard ||
-      !quantity ||
-      !photosID ||
       !securityCode ||
-      !cardName
+      !cardName ||
+      !userProductDataOfPurchase ||
+      !deliveryAddress ||
+      !name ||
+      !phone ||
+      !address ||
+      !complement ||
+      !dueDate ||
+      !numberAddress
     ) {
       return res.status(400).json({
         error: true,
         message: 'Dados incompletos',
         data: null,
       });
-    }
-
-    if (name) {
-      let isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
-
-      if (!isNameValid || name.length < 2) {
-        return res.status(400).json({
-          error: true,
-          message: 'Nome invalido',
-        });
-      }
     }
 
     if (userID) {
@@ -442,13 +443,72 @@ export const purchases = async (req: Request, res: Response) => {
       }
     }
 
-    if (quantity) {
-      const isValidQuantity = validator.isNumeric(quantity.toString());
+    if (dueDate) {
+      const regex = /^(0[1-9]|1[0-2])(\/)((2[3-9]|4[0-9])$)/;
 
-      if (!isValidQuantity) {
+      const isDueDateValid = regex.test(dueDate);
+
+      if (!isDueDateValid) {
         return res.status(400).json({
           error: true,
-          message: 'Quantidade de produto invalida.',
+          message: 'Data de validade do cartão invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (name) {
+      if (name.length < 2) {
+        return res.status(400).json({
+          error: true,
+          message: 'Nome invalido',
+          data: null,
+        });
+      }
+      const isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
+
+      if (!isNameValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Nome invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (phone) {
+      const isValidPhone = validator.isMobilePhone(phone);
+
+      if (!isValidPhone || phone.length < 15) {
+        return res.status(400).json({
+          error: true,
+          message: 'Numero do celular invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (address) {
+      let regex = /^[A-Za-z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$/;
+
+      const isAddressValid = address.match(regex);
+
+      if (!isAddressValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Endereço invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (numberAddress) {
+      const isNumberAddressValid = validator.isNumeric(numberAddress, { locale: 'pt-BR' });
+
+      if (!isNumberAddressValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Numero do endereço invalido',
           data: null,
         });
       }
@@ -502,19 +562,28 @@ export const purchases = async (req: Request, res: Response) => {
       }
     }
 
+    const numberCardHash = await bcrypt.hashSync(numberOfCard, 10);
+    const securityCodeHash = await bcrypt.hashSync(securityCode.toString(), 10);
+
     let lastNumbersOfCard = numberOfCard.slice(-4, numberOfCard.length).trim();
     lastNumbersOfCard = `*** ${lastNumbersOfCard}`;
 
     let purchase = await UserPurchases.create({
       userID,
-      name,
       numberParcelOfValue,
       total,
-      numberOfCard,
-      quantity,
-      photosID,
-
+      numberOfCard: numberCardHash,
+      userProductDataOfPurchase,
       lastNumbersOfCard,
+      securityCode: securityCodeHash,
+      cardName,
+      phone,
+      dueDate,
+      complement: complement ? complement : '',
+      numberAddress,
+      deliveryAddress,
+      name,
+      address,
     });
 
     if (!purchase) {

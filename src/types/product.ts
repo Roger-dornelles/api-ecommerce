@@ -7,12 +7,24 @@ export type ProductType = {
 };
 export interface UserPurchaseType {
   userID: number;
-  name: string;
   numberParcelOfValue: string;
   total: string;
   numberOfCard: string;
-  quantity: string;
-  photosID: string;
   securityCode: string;
   cardName: string;
+  userProductDataOfPurchase: UserProductDataOfPurchaseType;
+  deliveryAddress: unknown;
+  name: string;
+  phone: string;
+  address: string;
+  complement: string;
+  dueDate: string;
+  numberAddress: string;
+}
+
+export interface UserProductDataOfPurchaseType {
+  name: string;
+  image: string;
+  quantity: string | number;
+  value: string;
 }
