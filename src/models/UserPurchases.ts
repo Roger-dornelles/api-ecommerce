@@ -25,22 +25,16 @@ const UserPurchases = sequelize.define<UserPurchasesInstance>(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    name: {
+    securityCode: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    photosID: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     total: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+
     numberParcelOfValue: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -50,6 +44,42 @@ const UserPurchases = sequelize.define<UserPurchasesInstance>(
       allowNull: false,
     },
     lastNumbersOfCard: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    userProductDataOfPurchase: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    cardName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    deliveryAddress: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    numberAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    complement: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    dueDate: {
       type: DataTypes.STRING,
       allowNull: false,
     },

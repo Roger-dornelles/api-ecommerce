@@ -17,9 +17,9 @@ statesDB();
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, cpf, logradouro, number, contact, state, password }: CreateUser = req.body;
+    const { name, email, cpf, logradouro, number, contact, state, password, district }: CreateUser = req.body;
 
-    if (!name || !email || !cpf || !logradouro || !number || !contact || !state || !password) {
+    if (!name || !email || !cpf || !logradouro || !number || !contact || !state || !password || !district) {
       return res.status(201).json({
         error: true,
         message: 'Preencha todos os campos.',
@@ -116,6 +116,17 @@ export const createUser = async (req: Request, res: Response) => {
       }
     }
 
+    if (district) {
+      let isDistrictValid: boolean = validator.isAlpha(district, 'pt-BR', { ignore: ' ' });
+
+      if (!isDistrictValid) {
+        return res.status(201).json({
+          error: true,
+          message: 'Bairro invalido.',
+          data: null,
+        });
+      }
+    }
     const passwordHash = await bcrypt.hashSync(password, 10);
     const cpfHash = await bcrypt.hashSync(cpf.toString(), 10);
 
@@ -131,6 +142,7 @@ export const createUser = async (req: Request, res: Response) => {
       number,
       state: state.toUpperCase(),
       cpf: cpfHash,
+      district,
     });
 
     if (userCreated) {

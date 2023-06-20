@@ -7,6 +7,7 @@ export type CreateUser = {
   contact: number;
   number: number;
   password: string;
+  district: string;
 };
 
 export type updateUserType = {
@@ -17,4 +18,5 @@ export type updateUserType = {
   logradouro: string;
   number: number;
   state: string;
+  district: string;
 };
