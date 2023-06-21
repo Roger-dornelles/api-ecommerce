@@ -1,3 +1,4 @@
+import { purchases } from './productController';
 import { Request, Response } from 'express';
 import Images from '@/models/Images';
 import { ProductType, UserPurchaseType } from '@/types/product';
@@ -600,7 +601,42 @@ export const purchases = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (error) {
-    console.log('ERROR ===>> ', error);
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};
+
+export const userPurchases = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        erro: true,
+        message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const purchases = await UserPurchases.findAll({ where: { userID: id } });
+
+    if (!purchases) {
+      return res.status(200).json({
+        error: true,
+        message: 'Não há compras.',
+        data: null,
+      });
+    }
+
+    return res.status(201).json({
+      error: false,
+      message: null,
+      data: purchases,
+    });
+  } catch (error) {
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
