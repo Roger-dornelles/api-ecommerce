@@ -18,6 +18,7 @@ export const privateRoute = async (req: Request, res: Response, next: NextFuncti
     const decoded = JWT.verify(token, process.env.JWT_SECRET as string);
 
     if (decoded) {
+      console.log(decoded);
       Object(req).user = decoded;
       next();
     } else {
