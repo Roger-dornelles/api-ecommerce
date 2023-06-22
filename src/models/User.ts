@@ -11,6 +11,7 @@ export interface CreateUserInstance extends Model {
   number: number;
   contact: string;
   state: string;
+  district: string;
 }
 
 export const User = sequelize.define<CreateUserInstance>(
@@ -50,6 +51,10 @@ export const User = sequelize.define<CreateUserInstance>(
       allowNull: false,
     },
     state: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    district: {
       type: DataTypes.STRING,
       allowNull: false,
     },

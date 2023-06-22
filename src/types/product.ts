@@ -8,13 +8,27 @@ export type ProductType = {
 
 export interface UserPurchaseType {
   userID: number;
-  name: string;
   photosID: string;
   numberParcelOfValue: string;
-  quantity: number;
   total: string;
   numberOfCard: string;
-  lastNumbersOfCard: string;
-  securityCode: number;
+  securityCode: string;
   cardName: string;
+  userProductDataOfPurchase: UserProductDataOfPurchaseType;
+  deliveryAddress: unknown;
+  name: string;
+  phone: string;
+  address: string;
+  complement: string;
+  dueDate: string;
+  numberAddress: string;
+  quantity: number;
+  lastNumbersOfCard: string;
+}
+
+export interface UserProductDataOfPurchaseType {
+  name: string;
+  image: string;
+  quantity: string | number;
+  value: string;
 }

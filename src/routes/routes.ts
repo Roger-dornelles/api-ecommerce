@@ -38,6 +38,7 @@ route.get('/product/:id', productController.viewOneProduct);
 route.get('/products/all', productController.displayAllProducts);
 
 route.post('/product/purchase/:id', privateRoute, productController.purchases);
+route.get('/product/purchase/:id', privateRoute, productController.userPurchases);
 
 route.post('/installment', privateRoute, productController.installments);
 

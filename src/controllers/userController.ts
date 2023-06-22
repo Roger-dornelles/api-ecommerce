@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 
 import { User } from '@/models/User';
 import { States } from '@/models/States';
+import { userAuthenticated } from '@/auth/auth';
 
 let states: string[];
 const statesDB = async () => {
@@ -17,9 +18,9 @@ statesDB();
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, cpf, logradouro, number, contact, state, password }: CreateUser = req.body;
+    const { name, email, cpf, logradouro, number, contact, state, password, district }: CreateUser = req.body;
 
-    if (!name || !email || !cpf || !logradouro || !number || !contact || !state || !password) {
+    if (!name || !email || !cpf || !logradouro || !number || !contact || !state || !password || !district) {
       return res.status(201).json({
         error: true,
         message: 'Preencha todos os campos.',
@@ -116,6 +117,17 @@ export const createUser = async (req: Request, res: Response) => {
       }
     }
 
+    if (district) {
+      let isDistrictValid: boolean = validator.isAlpha(district, 'pt-BR', { ignore: ' ' });
+
+      if (!isDistrictValid) {
+        return res.status(201).json({
+          error: true,
+          message: 'Bairro invalido.',
+          data: null,
+        });
+      }
+    }
     const passwordHash = await bcrypt.hashSync(password, 10);
     const cpfHash = await bcrypt.hashSync(cpf.toString(), 10);
 
@@ -131,6 +143,7 @@ export const createUser = async (req: Request, res: Response) => {
       number,
       state: state.toUpperCase(),
       cpf: cpfHash,
+      district,
     });
 
     if (userCreated) {
@@ -205,6 +218,24 @@ export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, password, email, contact, logradouro, number, state }: updateUserType = req.body;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
 
     const user = await User.findByPk(id);
 
@@ -320,6 +351,24 @@ export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
+
     if (id) {
       const user = await User.findByPk(id);
 
@@ -355,6 +404,16 @@ export const userInfo = async (req: Request, res: Response) => {
       return res.status(404).json({
         error: true,
         message: 'Usuário não encontrado.',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
         data: null,
       });
     }

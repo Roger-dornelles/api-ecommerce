@@ -6,6 +6,9 @@ import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
 import UserPurchases from '@/models/UserPurchases';
 
+import bcrypt from 'bcryptjs';
+import { userAuthenticated } from '@/auth/auth';
+
 const booleans = ['false', 'true'];
 
 export const newProduct = async (req: Request, res: Response) => {
@@ -14,6 +17,24 @@ export const newProduct = async (req: Request, res: Response) => {
     const { id } = req.params;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const photos: any = req.files;
+
+    if (!id) {
+      return res.status(404).json({
+        erro: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
 
     let user = await User.findByPk(id);
 
@@ -323,7 +344,6 @@ export const viewOneProduct = async (req: Request, res: Response) => {
       data: { product: product, images: images },
     });
   } catch (error) {
-    console.log('error ======== ', error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
@@ -391,44 +411,62 @@ export const purchases = async (req: Request, res: Response) => {
   try {
     const {
       userID,
-      name,
       numberParcelOfValue,
       total,
       numberOfCard,
-      quantity,
-      photosID,
       securityCode,
       cardName,
+      userProductDataOfPurchase,
+      deliveryAddress,
+      name,
+      phone,
+      address,
+      complement,
+      dueDate,
+      numberAddress,
     }: UserPurchaseType = req.body;
+
     const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
 
     if (
       !userID ||
-      !name ||
       !numberParcelOfValue ||
       !total ||
       !numberOfCard ||
-      !quantity ||
-      !photosID ||
       !securityCode ||
-      !cardName
+      !cardName ||
+      !userProductDataOfPurchase ||
+      !deliveryAddress ||
+      !name ||
+      !phone ||
+      !address ||
+      !complement ||
+      !dueDate ||
+      !numberAddress
     ) {
       return res.status(400).json({
         error: true,
         message: 'Dados incompletos',
         data: null,
       });
-    }
-
-    if (name) {
-      let isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
-
-      if (!isNameValid || name.length < 2) {
-        return res.status(400).json({
-          error: true,
-          message: 'Nome invalido',
-        });
-      }
     }
 
     if (userID) {
@@ -443,13 +481,72 @@ export const purchases = async (req: Request, res: Response) => {
       }
     }
 
-    if (quantity) {
-      const isValidQuantity = validator.isNumeric(quantity.toString());
+    if (dueDate) {
+      const regex = /^(0[1-9]|1[0-2])(\/)((2[3-9]|4[0-9])$)/;
 
-      if (!isValidQuantity) {
+      const isDueDateValid = regex.test(dueDate);
+
+      if (!isDueDateValid) {
         return res.status(400).json({
           error: true,
-          message: 'Quantidade de produto invalida.',
+          message: 'Data de validade do cartão invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (name) {
+      if (name.length < 2) {
+        return res.status(400).json({
+          error: true,
+          message: 'Nome invalido',
+          data: null,
+        });
+      }
+      const isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
+
+      if (!isNameValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Nome invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (phone) {
+      const isValidPhone = validator.isMobilePhone(phone);
+
+      if (!isValidPhone || phone.length < 15) {
+        return res.status(400).json({
+          error: true,
+          message: 'Numero do celular invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (address) {
+      let regex = /^[A-Za-z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$/;
+
+      const isAddressValid = address.match(regex);
+
+      if (!isAddressValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Endereço invalido',
+          data: null,
+        });
+      }
+    }
+
+    if (numberAddress) {
+      const isNumberAddressValid = validator.isNumeric(numberAddress, { locale: 'pt-BR' });
+
+      if (!isNumberAddressValid) {
+        return res.status(400).json({
+          error: true,
+          message: 'Numero do endereço invalido',
           data: null,
         });
       }
@@ -479,8 +576,6 @@ export const purchases = async (req: Request, res: Response) => {
     }
 
     if (cardName.toLocaleLowerCase() === 'american express') {
-      console.log('entrou AMERICAN ');
-
       const securityCodeLength = validator.isLength(securityCode.toString(), { min: 4, max: 4 });
 
       if (!securityCodeLength) {
@@ -505,18 +600,28 @@ export const purchases = async (req: Request, res: Response) => {
       }
     }
 
+    const numberCardHash = await bcrypt.hashSync(numberOfCard, 10);
+    const securityCodeHash = await bcrypt.hashSync(securityCode.toString(), 10);
+
     let lastNumbersOfCard = numberOfCard.slice(-4, numberOfCard.length).trim();
     lastNumbersOfCard = `*** ${lastNumbersOfCard}`;
 
     let purchase = await UserPurchases.create({
-      userID: id,
-      name,
+      userID,
       numberParcelOfValue,
       total,
-      numberOfCard,
-      quantity,
-      photosID,
+      numberOfCard: numberCardHash,
+      userProductDataOfPurchase,
       lastNumbersOfCard,
+      securityCode: securityCodeHash,
+      cardName,
+      phone,
+      dueDate,
+      complement: complement ? complement : '',
+      numberAddress,
+      deliveryAddress,
+      name,
+      address,
     });
 
     if (!purchase) {
@@ -531,6 +636,52 @@ export const purchases = async (req: Request, res: Response) => {
       error: false,
       message: 'Pagamento efetuado com sucesso',
       data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};
+
+export const userPurchases = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        erro: true,
+        message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
+
+    const purchases = await UserPurchases.findAll({ where: { userID: id } });
+
+    if (!purchases) {
+      return res.status(200).json({
+        error: true,
+        message: 'Não há compras.',
+        data: null,
+      });
+    }
+
+    return res.status(201).json({
+      error: false,
+      message: null,
+      data: purchases,
     });
   } catch (error) {
     return res.status(500).json({
