@@ -35,3 +35,27 @@ export const privateRoute = async (req: Request, res: Response, next: NextFuncti
     });
   }
 };
+
+export const userAuthenticated = async (
+  req: Request,
+  userId: number | string
+): Promise<{ error: boolean; message: string; data: null } | undefined> => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const decoded = JWT.verify(token as string, process.env.JWT_SECRET as string);
+
+    if (Object(decoded).id !== Number(userId)) {
+      return {
+        error: true,
+        message: 'Usuário não autorizado.',
+        data: null,
+      };
+    }
+  } catch (error) {
+    return {
+      error: true,
+      message: 'Usuário não autenticado.',
+      data: null,
+    };
+  }
+};

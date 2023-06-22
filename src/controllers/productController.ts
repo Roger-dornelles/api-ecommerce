@@ -1,4 +1,3 @@
-import { purchases } from './productController';
 import { Request, Response } from 'express';
 import Images from '@/models/Images';
 import { ProductType, UserPurchaseType } from '@/types/product';
@@ -7,7 +6,7 @@ import { User } from '@/models/User';
 import Product, { ProductInstance } from '@/models/Product';
 import UserPurchases from '@/models/UserPurchases';
 import bcrypt from 'bcryptjs';
-import { locales } from 'validator/lib/isIBAN';
+import { userAuthenticated } from '@/auth/auth';
 
 const booleans = ['false', 'true'];
 
@@ -17,6 +16,24 @@ export const newProduct = async (req: Request, res: Response) => {
     const { id } = req.params;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const photos: any = req.files;
+
+    if (!id) {
+      return res.status(404).json({
+        erro: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
 
     let user = await User.findByPk(id);
 
@@ -326,7 +343,6 @@ export const viewOneProduct = async (req: Request, res: Response) => {
       data: { product: product, images: images },
     });
   } catch (error) {
-    console.log('error ======== ', error);
     return res.status(500).json({
       error: true,
       message: 'Ocorreu um erro, tente mais tarde.',
@@ -408,6 +424,26 @@ export const purchases = async (req: Request, res: Response) => {
       dueDate,
       numberAddress,
     }: UserPurchaseType = req.body;
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
 
     if (
       !userID ||
@@ -617,6 +653,16 @@ export const userPurchases = async (req: Request, res: Response) => {
       return res.status(404).json({
         erro: true,
         message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
         data: null,
       });
     }
