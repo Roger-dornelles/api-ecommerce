@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 
 import { User } from '@/models/User';
 import { States } from '@/models/States';
+import { userAuthenticated } from '@/auth/auth';
 
 let states: string[];
 const statesDB = async () => {
@@ -218,6 +219,24 @@ export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, password, email, contact, logradouro, number, state }: updateUserType = req.body;
 
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
+
     const user = await User.findByPk(id);
 
     if (!user) {
@@ -332,6 +351,24 @@ export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário inexistente',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
+
     if (id) {
       const user = await User.findByPk(id);
 
@@ -367,6 +404,16 @@ export const userInfo = async (req: Request, res: Response) => {
       return res.status(404).json({
         error: true,
         message: 'Usuário não encontrado.',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
         data: null,
       });
     }
