@@ -5,6 +5,7 @@ import * as statesController from '@/controllers/statesController';
 import * as productController from '@/controllers/productController';
 import * as imageController from '@/controllers/imageController';
 import { uploadImages } from '@/middlewares/uploadImages';
+import * as fullText from '@/controllers/fullText';
 
 const route = Router();
 
@@ -36,6 +37,9 @@ route.put('/product/update/:id', privateRoute, productController.updateProductIn
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
 route.get('/product/:id', productController.viewOneProduct);
 route.get('/products/all', productController.displayAllProducts);
+
+// search product custom (FullText)
+route.get('/fulltext/:text', fullText.fullTextSearch);
 
 route.post('/product/purchase/:id', privateRoute, productController.purchases);
 route.get('/product/purchase/:id', privateRoute, productController.userPurchases);
