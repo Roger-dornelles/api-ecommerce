@@ -37,6 +37,7 @@ route.put('/product/update/:id', privateRoute, productController.updateProductIn
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
 route.get('/product/:id', productController.viewOneProduct);
 route.get('/products/all', productController.displayAllProducts);
+route.get('/products/user/:id',privateRoute, productController.displayProductUser)
 
 // search product custom (FullText)
 route.get('/fulltext/:text', fullText.fullTextSearch);
