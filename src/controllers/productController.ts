@@ -690,3 +690,45 @@ export const userPurchases = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const displayProductUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).json({
+        error: true,
+        message: 'Usuário não encontrado',
+        data: null,
+      });
+    }
+
+    const isUserAuthenticated = await userAuthenticated(req, id);
+
+    if (isUserAuthenticated?.error) {
+      return res.status(401).json({
+        error: true,
+        message: isUserAuthenticated?.message,
+        data: null,
+      });
+    }
+
+    const productUserLogged = await Product.findAll({
+      where: {
+        userID: id,
+      },
+    });
+
+    return res.status(201).json({
+      error: false,
+      message: null,
+      data: productUserLogged,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro, tente mais tarde.',
+      data: null,
+    });
+  }
+};

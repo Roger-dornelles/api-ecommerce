@@ -190,7 +190,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const isvalidPassword = bcrypt.compareSync(password, user.password);
+    const isvalidPassword = bcrypt.compare(password, user.password);
     if (!isvalidPassword) {
       return res.status(201).json({
         error: true,
