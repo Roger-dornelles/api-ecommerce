@@ -207,8 +207,10 @@ export const updateProductInformation = async (req: Request, res: Response) => {
     }
 
     if (value) {
-      let regex = /\d{1,3}(?:\.\d{3})+,\d{2}$/gm;
-      let isValid = regex.test(value);
+      const newValue = value.replace('R$', '').replace('.', '').replace(',', '').trim();
+      
+      // let regex = /\d{1,3}(?:\.\d{3})+,\d{2}$/gm;
+      let isValid = validator.isNumeric(newValue)
       if (!isValid) {
         return res.status(201).json({
           error: true,
