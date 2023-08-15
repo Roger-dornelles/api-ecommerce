@@ -110,9 +110,25 @@ export const newProduct = async (req: Request, res: Response) => {
           });
         }
         // Object(value.replace('.', '').replace(',', '')).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-          Object(value.replace('.', '').replace(',', ''))
-        );
+        // value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+        //   Object(value.replace('.', '').replace(',', ''))
+        // );
+
+        let valor = value.replace(/[^\d]+/gi, '');
+        let resultado = '';
+        let mascara = '';
+        valor.length === 5 ? (mascara = '###,##') : (mascara = '###.###,##');
+        for (let x = 0, y = 0; x < mascara.length && y < valor.length; ) {
+          if (mascara.charAt(x) != '#') {
+            resultado += mascara.charAt(x);
+            x++;
+          } else {
+            resultado += valor.charAt(y);
+            y++;
+            x++;
+          }
+        }
+        value = `R$ ${resultado}`;
       }
       let photo = [];
       if (photos.length >= 1) {
@@ -208,9 +224,9 @@ export const updateProductInformation = async (req: Request, res: Response) => {
 
     if (value) {
       const newValue = value.replace('R$', '').replace('.', '').replace(',', '').trim();
-      
+
       // let regex = /\d{1,3}(?:\.\d{3})+,\d{2}$/gm;
-      let isValid = validator.isNumeric(newValue)
+      let isValid = validator.isNumeric(newValue);
       if (!isValid) {
         return res.status(201).json({
           error: true,
