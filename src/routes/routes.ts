@@ -1,4 +1,4 @@
-import { privateRoute } from './../auth/auth';
+import { privateRoute, authenticateAppUser } from './../auth/auth';
 import { Router, Request, Response } from 'express';
 import * as userController from '@/controllers/userController';
 import * as statesController from '@/controllers/statesController';
@@ -16,6 +16,9 @@ route.get('/test', (req: Request, res: Response) => {
     data: null,
   });
 });
+
+// authenticated user for app mobile ( android )
+route.post('/auth/app', privateRoute, authenticateAppUser);
 
 // add states
 route.post('/add/states', privateRoute, statesController.addState);
@@ -37,7 +40,7 @@ route.put('/product/update/:id', privateRoute, productController.updateProductIn
 route.delete('/product/:id', privateRoute, productController.deleteOneProduct);
 route.get('/product/:id', productController.viewOneProduct);
 route.get('/products/all', productController.displayAllProducts);
-route.get('/products/user/:id',privateRoute, productController.displayProductUser)
+route.get('/products/user/:id', privateRoute, productController.displayProductUser);
 
 // search product custom (FullText)
 route.get('/fulltext/:text', fullText.fullTextSearch);

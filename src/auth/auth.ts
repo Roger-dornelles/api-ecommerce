@@ -59,3 +59,32 @@ export const userAuthenticated = async (
     };
   }
 };
+
+export const authenticateAppUser = async (req: Request, res: Response) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(404).json({
+        error: true,
+        message: 'Token invalido',
+        data: null,
+      });
+    }
+    const decoded = JWT.verify(token as string, process.env.JWT_SECRET as string);
+
+    if (decoded) {
+      return res.status(201).json({
+        error: false,
+        message: null,
+        data: decoded,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: 'Ocorreu um erro',
+      data: null,
+    });
+  }
+};
