@@ -479,7 +479,7 @@ export const purchases = async (req: Request, res: Response) => {
       !dueDate ||
       !numberAddress
     ) {
-      return res.status(400).json({
+      return res.status(201).json({
         error: true,
         message: 'Dados incompletos',
         data: null,
@@ -490,7 +490,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isValidUserID = validator.isNumeric(userID.toString());
 
       if (!isValidUserID) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Usuário invalido.',
           data: null,
@@ -504,7 +504,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isDueDateValid = regex.test(dueDate);
 
       if (!isDueDateValid) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Data de validade do cartão invalido',
           data: null,
@@ -514,7 +514,7 @@ export const purchases = async (req: Request, res: Response) => {
 
     if (name) {
       if (name.length < 2) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Nome invalido',
           data: null,
@@ -523,7 +523,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isNameValid: boolean = validator.isAlpha(name, 'pt-BR', { ignore: ' ' });
 
       if (!isNameValid) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Nome invalido',
           data: null,
@@ -535,7 +535,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isValidPhone = validator.isMobilePhone(phone);
 
       if (!isValidPhone || phone.length < 15) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Numero do celular invalido',
           data: null,
@@ -549,7 +549,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isAddressValid = address.match(regex);
 
       if (!isAddressValid) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Endereço invalido',
           data: null,
@@ -561,7 +561,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isNumberAddressValid = validator.isNumeric(numberAddress, { locale: 'pt-BR' });
 
       if (!isNumberAddressValid) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Numero do endereço invalido',
           data: null,
@@ -572,7 +572,7 @@ export const purchases = async (req: Request, res: Response) => {
     if (numberOfCard) {
       const isValidCard = validator.isCreditCard(numberOfCard);
       if (!isValidCard) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Cartão invalido',
           data: null,
@@ -584,7 +584,7 @@ export const purchases = async (req: Request, res: Response) => {
       const isValidSecurityCode = validator.isNumeric(securityCode.toString());
 
       if (!isValidSecurityCode) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Código de segurança invalido',
           data: null,
@@ -596,7 +596,7 @@ export const purchases = async (req: Request, res: Response) => {
       const securityCodeLength = validator.isLength(securityCode.toString(), { min: 4, max: 4 });
 
       if (!securityCodeLength) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Código segurança invalido.',
           data: null,
@@ -609,7 +609,7 @@ export const purchases = async (req: Request, res: Response) => {
       const integerNumberLength = validator.isLength(securityCode.toString(), { min: 3, max: 3 });
 
       if (!integerNumberLength) {
-        return res.status(400).json({
+        return res.status(201).json({
           error: true,
           message: 'Código segurança invalido.',
           data: null,
